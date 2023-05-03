@@ -1,0 +1,67 @@
+// https://gpt.howtoprisma.com/
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["fullTextIndex", "fullTextSearch", "metrics"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+    CLIENT
+    ADMIN
+}
+
+model User {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    index     Int      @default(autoincrement())
+
+    username String   @unique
+    role     UserRole @default(CLIENT)
+    category String   @default("NORMAL")
+
+    UserCredentials   UserCredentials @relation(fields: [userCredentialsId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userCredentialsId String
+    UserProfile       UserProfile     @relation(fields: [userProfileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userProfileId     String
+
+    @@index([username])
+}
+
+model UserProfile {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    fullname                  String  @default("")
+    isRequiredToDefineProfile Boolean @default(false)
+
+    User User[]
+}
+
+model UserCredentials {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    email                      String  @unique
+    isEmailVerified            Boolean @default(false)
+    password                   String
+    phone                      String  @default("")
+    isPhoneNumberVerified      Boolean @default(false)
+    googleId                   String?
+    twitterId                  String?
+    magicLinkCode              String?
+    multiFactorCode            String?
+    credentialVerificationCode String?
+    codeToChangePassword       String?
+
+    User User[]
+
+    @@index([email])
+}

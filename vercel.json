@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "cleanUrls": false,
+  "buildCommand": "npx prisma migrate deploy && nest build",
+  "devCommand": "nest start --watch",
+  "installCommand": "npm install",
+  "outputDirectory": "dist",
+  "framework": null,
+  "regions": ["iad1"],
+  "builds": [
+    {
+      "src": "dist/main.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/main.js",
+      "methods": ["GET", "POST", "PUT", "DELETE"]
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
